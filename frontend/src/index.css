@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+}
+
+body {
+  background: var(--bg-gradient);
+  min-height: 100vh;
+  color: white;
+  @apply font-sans;
+}
+
+.glass-panel {
+  @apply bg-white bg-opacity-5 backdrop-blur-md border border-white border-opacity-10 rounded-2xl shadow-2xl;
+}
+
+.glass-card {
+  @apply bg-white bg-opacity-[0.03] backdrop-blur-sm border border-white border-opacity-[0.05] rounded-xl p-6 transition-all duration-300 hover:translate-y-[-5px] hover:shadow-2xl hover:bg-opacity-[0.06];
+}
+
+.btn {
+  @apply inline-block px-5 py-2.5 rounded-lg font-semibold cursor-pointer transition-all duration-300 text-center no-underline;
+}
+
+.btn-primary {
+  @apply bg-accent text-white border border-white border-opacity-20 shadow-[0_4px_15px_rgba(139,92,246,0.4)] hover:bg-purple-600 hover:scale-105 hover:shadow-[0_6px_20px_rgba(139,92,246,0.6)];
+}
+
+.btn-secondary {
+  @apply bg-white bg-opacity-10 text-white border border-white border-opacity-20 hover:bg-opacity-20 hover:border-opacity-40;
+}
+
+.form-control {
+  @apply w-full px-4 py-3 bg-black bg-opacity-20 border border-white border-opacity-10 rounded-lg text-white outline-none transition-all duration-300 focus:border-accent focus:bg-opacity-40;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
