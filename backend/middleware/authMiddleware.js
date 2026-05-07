@@ -1,13 +1,8 @@
 const jwt = require('jsonwebtoken');
 
 const auth = (req, res, next) => {
-  // Check header first, then cookie
-  let token = req.header('Authorization');
-  if (token) {
-    token = token.replace('Bearer ', '');
-  } else {
-    token = req.cookies.refreshToken;
-  }
+  // Check access token cookie first, then fall back to refresh token cookie
+  const token = req.cookies.accessToken || req.cookies.refreshToken;
 
   if (!token) return res.status(401).json({ message: 'No token, authorization denied' });
 

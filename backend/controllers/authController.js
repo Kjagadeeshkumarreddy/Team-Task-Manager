@@ -11,14 +11,22 @@ const generateTokens = (user) => {
   return { accessToken, refreshToken };
 };
 
-const setTokenCookie = (res, refreshToken) => {
-  const cookieOptions = {
+const setCookies = (res, accessToken, refreshToken) => {
+  const commonOptions = {
     httpOnly: true,
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   };
-  res.cookie('refreshToken', refreshToken, cookieOptions);
+
+  res.cookie('accessToken', accessToken, {
+    ...commonOptions,
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+  });
+
+  res.cookie('refreshToken', refreshToken, {
+    ...commonOptions,
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+  });
 };
 
 const registerUser = async (req, res) => {
@@ -33,10 +41,9 @@ const registerUser = async (req, res) => {
     await user.save();
 
     const { accessToken, refreshToken } = generateTokens(user);
-    setTokenCookie(res, refreshToken);
+    setCookies(res, accessToken, refreshToken);
 
     res.json({ 
-      token: accessToken, 
       user: { id: user.id, name: user.name, email: user.email, role: user.role } 
     });
   } catch (err) {
@@ -54,10 +61,9 @@ const loginUser = async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: 'Invalid Credentials' });
 
     const { accessToken, refreshToken } = generateTokens(user);
-    setTokenCookie(res, refreshToken);
+    setCookies(res, accessToken, refreshToken);
 
     res.json({ 
-      token: accessToken, 
       user: { id: user.id, name: user.name, email: user.email, role: user.role } 
     });
   } catch (err) {
@@ -70,22 +76,24 @@ const getMe = async (req, res) => {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
     
-    // Refresh the access token on each 'me' check for auto-login
+    // Refresh tokens on check
     const { accessToken, refreshToken } = generateTokens(user);
-    setTokenCookie(res, refreshToken);
+    setCookies(res, accessToken, refreshToken);
     
-    res.json({ token: accessToken, user });
+    res.json({ user });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 };
 
 const logoutUser = (req, res) => {
-  res.clearCookie('refreshToken', {
+  const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-  });
+  };
+  res.clearCookie('accessToken', options);
+  res.clearCookie('refreshToken', options);
   res.json({ message: 'Logged out successfully' });
 };
 
