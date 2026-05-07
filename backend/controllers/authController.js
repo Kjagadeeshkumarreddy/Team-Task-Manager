@@ -5,7 +5,7 @@ const User = require('../models/User');
 const generateTokens = (user) => {
   const payload = { user: { id: user.id, role: user.role } };
   
-  const accessToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '15m' });
+  const accessToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '24h' });
   const refreshToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
   
   return { accessToken, refreshToken };
